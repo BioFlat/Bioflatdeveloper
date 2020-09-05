@@ -1,7 +1,7 @@
 module.exports = {
     
     created : param => `${param} created successfully`,
-    ok: `ok`,
+    ok: `Successfully`,
     badRequest:`Request not valid`,
     serverError:`something went wrong!`,
     passwordMismatch:`paassword doesn't match with confirm password`,
