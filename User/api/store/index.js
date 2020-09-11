@@ -1,8 +1,8 @@
 const router = require("express").Router();
-const env = require("../../config/env");
-const config = require("../../config")[env];
-const Store = require("../../models/Store");
-const HTTPResp = require("../../utils/HTTPResp");
+const env = require("../../../config/env");
+const config = require("../../../config")[env];
+const HTTPResp = require("../../../utils/HTTPResp");
+const Store = require("../../../models/Store");
  var ObjectId = require('mongoose').Types.ObjectId;
 var objectId = require('mongodb').ObjectId;
 

@@ -1,10 +1,10 @@
 const router = require("express").Router();
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
-const env = require("../../config/env");
-const config = require("../../config")[env];
-const User = require("../../models/User");
-const HTTPResp = require("../../utils/HTTPResp");
+const env = require("../../../config/env");
+const config = require("../../../config")[env];
+const User = require("../../../models/User");
+const HTTPResp = require("../../../utils/HTTPResp");
 var ObjectId = require('mongoose').Types.ObjectId;
 var objectId = require('mongodb').ObjectId;
 

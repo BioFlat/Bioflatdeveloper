@@ -1,9 +1,9 @@
 const router = require("express").Router();
-const env = require("../../config/env");
-const config = require("../../config")[env];
-const Cart = require("../../models/Cart");
-const HTTPResp = require("../../utils/HTTPResp");
- var ObjectId = require('mongoose').Types.ObjectId;
+ const Cart = require("../../../models/Cart");
+ const env = require("../../../config/env");
+const config = require("../../../config")[env];
+const HTTPResp = require("../../../utils/HTTPResp");
+  var ObjectId = require('mongoose').Types.ObjectId;
 var objectId = require('mongodb').ObjectId;
 
 router.post("/addToCart", function (req, res) {

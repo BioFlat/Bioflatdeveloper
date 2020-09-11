@@ -1,10 +1,10 @@
 const router = require("express").Router();
-const env = require("../../config/env");
-const config = require("../../config")[env];
-const Myorder = require("../../models/Myorder");
-const Address = require("../../models/Address");
-const HTTPResp = require("../../utils/HTTPResp");
- const jwt = require("jsonwebtoken");
+const env = require("../../../config/env");
+const config = require("../../../config")[env];
+const HTTPResp = require("../../../utils/HTTPResp");
+ const Myorder = require("../../../models/Myorder");
+const Address = require("../../../models/Address");
+  const jwt = require("jsonwebtoken");
 
  
 router.post("/order", function (req, res) {

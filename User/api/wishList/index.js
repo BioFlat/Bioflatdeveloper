@@ -1,9 +1,9 @@
 const router = require("express").Router();
-const env = require("../../config/env");
-const config = require("../../config")[env];
-const Wishlist = require("../../models/Wishlist");
-const HTTPResp = require("../../utils/HTTPResp");
- var ObjectId = require('mongoose').Types.ObjectId;
+const env = require("../../../config/env");
+const config = require("../../../config")[env];
+const HTTPResp = require("../../../utils/HTTPResp");
+ const Wishlist = require("../../../models/Wishlist");
+  var ObjectId = require('mongoose').Types.ObjectId;
 var objectId = require('mongodb').ObjectId;
 
 router.post("/addToWishlist", function (req, res) {

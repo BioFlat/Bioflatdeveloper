@@ -1,24 +1,14 @@
 const router = require("express").Router();
-const env = require("../../config/env");
-const config = require("../../config")[env];
-const Address = require("../../models/Address");
-const HTTPResp = require("../../utils/HTTPResp");
-  var ObjectId = require('mongoose').Types.ObjectId;
+const env = require("../../../config/env");
+const config = require("../../../config")[env];
+const HTTPResp = require("../../../utils/HTTPResp");
+ const Profile = require("../../../models/Profile");
+   var ObjectId = require('mongoose').Types.ObjectId;
 var objectId = require('mongodb').ObjectId;
-const jwt = require("jsonwebtoken");
 
+router.post("/createProfile", function (req, res) {
 
-router.post("/addAddress", function (req, res) {
-
-  var token = req.headers['token'];
-  if (!token) return res.status(401).send({ auth: false, message: 'No token provided.' });
-  
-  jwt.verify(token, config.secret, function(err, decoded) {
-    if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
-    req.email = decoded.email;
-    let email = req.email
-
-  let { houseNumber, streetName, city, state, pincode } = req.body;
+  let { name, email, phone, state, pincode } = req.body;
 
   if (!houseNumber || !streetName || !city || !state || !pincode) {
     return res.status(400).json(HTTPResp.error('badRequest'));
@@ -35,8 +25,7 @@ router.post("/addAddress", function (req, res) {
         streetName: req.body.streetName,
         city: req.body.city,
         state:req.body.state,
-        pincode: req.body.pincode,
-        email:email
+        pincode: req.body.pincode
       };
       newAddress = new Address(newAddress);
      newAddress.save((err, store) => {
@@ -47,7 +36,6 @@ router.post("/addAddress", function (req, res) {
         return res.status(201).json(HTTPResp.created("Address"));
        }
     });
-  })
 });
 
 router.get("/getAddress", function (req, res) {

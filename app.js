@@ -3,7 +3,8 @@ const app = express();
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const db =  require("./db");
-const api =  require("./api");
+const api =  require("./User/api");
+const Vendorapi = require("./Vendor/api");
 const PORT = process.env.PORT || 3500;
 
 app.use(cors())
@@ -19,6 +20,7 @@ const appInit = status => {
         });
   
       app.use('/api',api)
+      app.use('/Vendorapi',Vendorapi)
       app.get('/test',(req,res)=>{
           res.send("Test")
       })

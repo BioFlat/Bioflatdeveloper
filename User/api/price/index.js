@@ -1,9 +1,9 @@
 const router = require("express").Router();
-const env = require("../../config/env");
-const config = require("../../config")[env];
-const Price = require("../../models/Price");
-const HTTPResp = require("../../utils/HTTPResp");
- var ObjectId = require('mongoose').Types.ObjectId;
+const env = require("../../../config/env");
+const config = require("../../../config")[env];
+const HTTPResp = require("../../../utils/HTTPResp");
+ const Price = require("../../../models/Price");
+  var ObjectId = require('mongoose').Types.ObjectId;
 var objectId = require('mongodb').ObjectId;
 
 router.post("/addPrice", function (req, res) {
