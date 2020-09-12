@@ -7,7 +7,11 @@ const HTTPResp = require("../../../utils/HTTPResp");
 var objectId = require('mongodb').ObjectId;
 
 router.post("/addProduct", function (req, res) {
-
+  var token = req.headers['token'];
+  if (!token) return res.status(401).send({ auth: false, message: 'No token provided.' });
+  
+  jwt.verify(token, config.secret, function(err, decoded) {
+    if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
   let { productName } = req.body;
 
   if (!productName) {
@@ -34,8 +38,14 @@ router.post("/addProduct", function (req, res) {
     });
   });
 });
+})
 
 router.get("/getProduct", function (req, res) {
+  var token = req.headers['token'];
+  if (!token) return res.status(401).send({ auth: false, message: 'No token provided.' });
+  
+  jwt.verify(token, config.secret, function(err, decoded) {
+    if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
    Product.find( (err, result) => {
     if (err) {
       return res.status(500).send(err);
@@ -46,8 +56,14 @@ router.get("/getProduct", function (req, res) {
         res.status(200).json(HTTPResp.ok({result}));
    });
 });
+})
 
 router.put("/updateProduct", function (req,res){
+  var token = req.headers['token'];
+  if (!token) return res.status(401).send({ auth: false, message: 'No token provided.' });
+  
+  jwt.verify(token, config.secret, function(err, decoded) {
+    if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
      let {id} = req.query;
         if (!ObjectId.isValid(req.query.id)) {
         res.status(400).send(`Invalid id: ${req.query.id}`);
@@ -64,7 +80,13 @@ router.put("/updateProduct", function (req,res){
         }
      })
 });
+1})
 router.delete("/deleteProduct", function(req,res){
+  var token = req.headers['token'];
+  if (!token) return res.status(401).send({ auth: false, message: 'No token provided.' });
+  
+  jwt.verify(token, config.secret, function(err, decoded) {
+    if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
     let {id} = req.query;
     if (!ObjectId.isValid(req.query.id)) {
     res.status(400).send(`Invalid id: ${req.query.id}`);
@@ -76,6 +98,7 @@ router.delete("/deleteProduct", function(req,res){
         if(err){
             return res.status(400).json(HTTPResp.error('error'));
         }
-    })
+   
+     })   })
 })
  module.exports = router;

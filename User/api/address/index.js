@@ -51,7 +51,11 @@ router.post("/addAddress", function (req, res) {
 });
 
 router.get("/getAddress", function (req, res) {
+  var token = req.headers['token'];
+  if (!token) return res.status(401).send({ auth: false, message: 'No token provided.' });
   
+  jwt.verify(token, config.secret, function(err, decoded) {
+    if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
   Address.find( (err, result) => {
     if (err) {
       return res.status(500).send(err);
@@ -62,8 +66,14 @@ router.get("/getAddress", function (req, res) {
         res.status(200).json(HTTPResp.ok({result}));
    });
 });
+})
 
 router.put("/updateAddress", function (req,res){
+  var token = req.headers['token'];
+  if (!token) return res.status(401).send({ auth: false, message: 'No token provided.' });
+  
+  jwt.verify(token, config.secret, function(err, decoded) {
+    if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
      let {id} = req.query;
         if (!ObjectId.isValid(req.query.id)) {
         res.status(400).send(`Invalid id: ${req.query.id}`);
@@ -84,7 +94,13 @@ router.put("/updateAddress", function (req,res){
         }
      })
 });
+})
 router.delete("/deleteAddress", function(req,res){
+  var token = req.headers['token'];
+  if (!token) return res.status(401).send({ auth: false, message: 'No token provided.' });
+  
+  jwt.verify(token, config.secret, function(err, decoded) {
+    if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
     let {id} = req.query;
     if (!ObjectId.isValid(req.query.id)) {
     res.status(400).send(`Invalid id: ${req.query.id}`);
@@ -97,5 +113,6 @@ router.delete("/deleteAddress", function(req,res){
             return res.status(400).json(HTTPResp.error('error'));
         }
     })
+})
 })
  module.exports = router;
