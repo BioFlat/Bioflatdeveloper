@@ -8,14 +8,7 @@ const Address = require("../../../models/Address");
 
  
 router.post("/order", function (req, res) {
-
-  var token = req.headers['token'];
-  if (!token) return res.status(401).send({ auth: false, message: 'No token provided.' });
-  
-  jwt.verify(token, config.secret, function(err, decoded) {
-    if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
-    req.email = decoded.email;
-    let email = req.email
+     let email = req.email
 
     Address.findOne({"email":email}, (err, result) => {
          let newOrder = {
@@ -35,16 +28,9 @@ router.post("/order", function (req, res) {
     });
   })
 });
- })
-
+ 
 router.get("/getmyOrder", function (req, res) {
-    var token = req.headers['token'];
-    if (!token) return res.status(401).send({ auth: false, message: 'No token provided.' });
-    
-    jwt.verify(token, config.secret, function(err, decoded) {
-      if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
-      req.email = decoded.email;
-      let email = req.email
+       let email = req.email
   
     Myorder.find({"email":email}, (err, result) => {
       if (err) {
@@ -56,5 +42,4 @@ router.get("/getmyOrder", function (req, res) {
           res.status(200).json(HTTPResp.ok({result}));
      });
   });
-})
-module.exports = router;
+ module.exports = router;

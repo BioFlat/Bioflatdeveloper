@@ -5,6 +5,6 @@ const otpVerification = require('./otpVerification');
     
 router.use('/auth',auth)
 router.use('/login',login)
-router.use('/otpVerification',otpVerification)
+router.use('/otp',otpVerification)
  
 module.exports = router;

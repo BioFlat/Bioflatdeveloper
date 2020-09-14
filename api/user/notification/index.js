@@ -9,12 +9,7 @@ const jwt = require("jsonwebtoken");
 
 
 router.post("/addNotification", function (req, res) {
-    var token = req.headers['token'];
-    if (!token) return res.status(401).send({ auth: false, message: 'No token provided.' });
-    
-    jwt.verify(token, config.secret, function(err, decoded) {
-      if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
-
+ 
   let { title,description } = req.body;
 
   if (!title || !description) {
@@ -43,15 +38,9 @@ router.post("/addNotification", function (req, res) {
     });
   });
 });
-});
-
+ 
 router.get("/getNotification", function (req, res) {
-    var token = req.headers['token'];
-    if (!token) return res.status(401).send({ auth: false, message: 'No token provided.' });
-    
-    jwt.verify(token, config.secret, function(err, decoded) {
-      if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
-   Notification.find( (err, result) => {
+    Notification.find( (err, result) => {
     if (err) {
       return res.status(500).send(err);
     }
@@ -63,12 +52,7 @@ router.get("/getNotification", function (req, res) {
 });
 
 router.put("/updateNotification", function (req,res){
-    var token = req.headers['token'];
-    if (!token) return res.status(401).send({ auth: false, message: 'No token provided.' });
-    
-    jwt.verify(token, config.secret, function(err, decoded) {
-      if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
-     let {id} = req.query;
+      let {id} = req.query;
         if (!ObjectId.isValid(req.query.id)) {
         res.status(400).send(`Invalid id: ${req.query.id}`);
     }
@@ -85,15 +69,9 @@ router.put("/updateNotification", function (req,res){
         }
      })
 });
-})
-})
-router.delete("/deleteNotification", function(req,res){
-    var token = req.headers['token'];
-    if (!token) return res.status(401).send({ auth: false, message: 'No token provided.' });
-    
-    jwt.verify(token, config.secret, function(err, decoded) {
-      if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
-    let {id} = req.query;
+
+ router.delete("/deleteNotification", function(req,res){
+     let {id} = req.query;
     if (!ObjectId.isValid(req.query.id)) {
     res.status(400).send(`Invalid id: ${req.query.id}`);
     }
@@ -106,5 +84,4 @@ router.delete("/deleteNotification", function(req,res){
         }
     })
 })
-})
- module.exports = router;
+module.exports = router;

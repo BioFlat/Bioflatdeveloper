@@ -52,32 +52,32 @@ router.get("/getVendor", function (req, res) {
    });
 });
 
-// router.put("/update", function (req,res){
-//   var token = req.headers['token'];
-//   if (!token) return res.status(401).send({ auth: false, message: 'No token provided.' });
+router.put("/update", function (req,res){
+  var token = req.headers['token'];
+  if (!token) return res.status(401).send({ auth: false, message: 'No token provided.' });
   
-//   jwt.verify(token, config.secret, function(err, decoded) {
-//     if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
-//     req.email = decoded.email;
-//     let email = req.email
-//   let {password} = req.body;
-//   let hashedPassword = bcrypt.hashSync(password, 8);
-//   const reg = {
-//     email: req.body.email,
-//     password: hashedPassword,
-//     name: req.body.name,
-//     phone: req.body.phone
-//   }
-//   User.updateOne({"email":email},{ $set: reg}, function(err,result){
-//      if(result){
-//          res.status(200).json(HTTPResp.ok());
-//       }
-//      if(err){
-//          return res.status(400).json(HTTPResp.error('error'));
-//      }
-//   })
-// })
-// });
+  jwt.verify(token, config.secret, function(err, decoded) {
+    if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
+    req.email = decoded.email;
+    let email = req.email
+  let {password} = req.body;
+  let hashedPassword = bcrypt.hashSync(password, 8);
+  const reg = {
+    email: req.body.email,
+    password: hashedPassword,
+    name: req.body.name,
+    phone: req.body.phone
+  }
+  User.updateOne({"email":email},{ $set: reg}, function(err,result){
+     if(result){
+         res.status(200).json(HTTPResp.ok());
+      }
+     if(err){
+         return res.status(400).json(HTTPResp.error('error'));
+     }
+  })
+})
+});
 
 // router.post("/login", function (req, res) {
   

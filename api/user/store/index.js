@@ -7,12 +7,7 @@ const Store = require("../../../models/Store");
 var objectId = require('mongodb').ObjectId;
 
 router.post("/addStore", function (req, res) {
-  var token = req.headers['token'];
-  if (!token) return res.status(401).send({ auth: false, message: 'No token provided.' });
-  
-  jwt.verify(token, config.secret, function(err, decoded) {
-    if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
-  let { storeTitle, storeDescription, rating, distance } = req.body;
+   let { storeTitle, storeDescription, rating, distance } = req.body;
 
   if (!storeTitle || !storeDescription || !rating || !distance) {
     return res.status(400).json(HTTPResp.error('badRequest'));
@@ -41,15 +36,9 @@ router.post("/addStore", function (req, res) {
     });
   });
 });
-})
-
+ 
 router.get("/getStore", function (req, res) {
-  var token = req.headers['token'];
-  if (!token) return res.status(401).send({ auth: false, message: 'No token provided.' });
-  
-  jwt.verify(token, config.secret, function(err, decoded) {
-    if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
-  Store.find( (err, store) => {
+   Store.find( (err, store) => {
     if (err) {
       return res.status(500).send(err);
     }
@@ -59,15 +48,9 @@ router.get("/getStore", function (req, res) {
         res.status(200).json(HTTPResp.ok({store}));
    });
 });
-})
-
+ 
 router.put("/updateStore", function (req,res){
-  var token = req.headers['token'];
-  if (!token) return res.status(401).send({ auth: false, message: 'No token provided.' });
-  
-  jwt.verify(token, config.secret, function(err, decoded) {
-    if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
-     let {id} = req.query;
+      let {id} = req.query;
         if (!ObjectId.isValid(req.query.id)) {
         res.status(400).send(`Invalid id: ${req.query.id}`);
     }
@@ -86,14 +69,9 @@ router.put("/updateStore", function (req,res){
         }
      })
     })
-});
-router.delete("/deleteStore", function(req,res){
-  var token = req.headers['token'];
-  if (!token) return res.status(401).send({ auth: false, message: 'No token provided.' });
-  
-  jwt.verify(token, config.secret, function(err, decoded) {
-    if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
-    let {id} = req.query;
+ 
+ router.delete("/deleteStore", function(req,res){
+     let {id} = req.query;
     if (!ObjectId.isValid(req.query.id)) {
     res.status(400).send(`Invalid id: ${req.query.id}`);
     }
@@ -106,5 +84,4 @@ router.delete("/deleteStore", function(req,res){
         }
     })
   })
-})
- module.exports = router;
+  module.exports = router;

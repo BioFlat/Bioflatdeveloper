@@ -3,34 +3,20 @@ const env = require("../../../config/env");
 const config = require("../../../config")[env];
 const HTTPResp = require("../../../utils/HTTPResp");
 const Address = require("../../../models/Address");
-   var ObjectId = require('mongoose').Types.ObjectId;
-var objectId = require('mongodb').ObjectId;
+const ObjectId = require('mongoose').Types.ObjectId;
+const objectId = require('mongodb').ObjectId;
 const jwt = require("jsonwebtoken");
 
 
 router.post("/addAddress", function (req, res) {
-
-  var token = req.headers['token'];
-  if (!token) return res.status(401).send({ auth: false, message: 'No token provided.' });
-  
-  jwt.verify(token, config.secret, function(err, decoded) {
-    if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
-    req.email = decoded.email;
-    let email = req.email
+     let email = req.email
 
   let { houseNumber, streetName, city, state, pincode } = req.body;
 
   if (!houseNumber || !streetName || !city || !state || !pincode) {
     return res.status(400).json(HTTPResp.error('badRequest'));
   }
-//    Address.find({where:{ houseNumber:houseNumber,streetName:streetName,city:city,state:state,pincode:pincode}}, (err, address) => {
-//     if (err) {
-//       return res.status(500).json(HTTPResp.error("serverError"));
-//     }
-//     if (address) {
-//       return res.status(400).json(HTTPResp.error('exists','Address'));
-//     }
-    let newAddress = {
+     let newAddress = {
         houseNumber: req.body.houseNumber,
         streetName: req.body.streetName,
         city: req.body.city,
@@ -47,16 +33,11 @@ router.post("/addAddress", function (req, res) {
         return res.status(201).json(HTTPResp.created("Address"));
        }
     });
-  })
+  
 });
 
 router.get("/getAddress", function (req, res) {
-  var token = req.headers['token'];
-  if (!token) return res.status(401).send({ auth: false, message: 'No token provided.' });
-  
-  jwt.verify(token, config.secret, function(err, decoded) {
-    if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
-  Address.find( (err, result) => {
+   Address.find( (err, result) => {
     if (err) {
       return res.status(500).send(err);
     }
@@ -66,15 +47,9 @@ router.get("/getAddress", function (req, res) {
         res.status(200).json(HTTPResp.ok({result}));
    });
 });
-})
-
+ 
 router.put("/updateAddress", function (req,res){
-  var token = req.headers['token'];
-  if (!token) return res.status(401).send({ auth: false, message: 'No token provided.' });
-  
-  jwt.verify(token, config.secret, function(err, decoded) {
-    if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
-     let {id} = req.query;
+      let {id} = req.query;
         if (!ObjectId.isValid(req.query.id)) {
         res.status(400).send(`Invalid id: ${req.query.id}`);
     }
@@ -94,14 +69,9 @@ router.put("/updateAddress", function (req,res){
         }
      })
 });
-})
-router.delete("/deleteAddress", function(req,res){
-  var token = req.headers['token'];
-  if (!token) return res.status(401).send({ auth: false, message: 'No token provided.' });
-  
-  jwt.verify(token, config.secret, function(err, decoded) {
-    if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
-    let {id} = req.query;
+
+ router.delete("/deleteAddress", function(req,res){
+     let {id} = req.query;
     if (!ObjectId.isValid(req.query.id)) {
     res.status(400).send(`Invalid id: ${req.query.id}`);
     }
@@ -114,5 +84,4 @@ router.delete("/deleteAddress", function(req,res){
         }
     })
 })
-})
- module.exports = router;
+  module.exports = router;
