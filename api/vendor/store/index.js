@@ -6,7 +6,7 @@ const Store = require("../../../models/Store");
  var ObjectId = require('mongoose').Types.ObjectId;
 var objectId = require('mongodb').ObjectId;
 
-router.post("/addStore", function (req, res) {
+router.post("/", function (req, res) {
    let { storeTitle, storeDescription, rating, distance } = req.body;
 
   if (!storeTitle || !storeDescription || !rating || !distance) {
@@ -37,7 +37,7 @@ router.post("/addStore", function (req, res) {
   });
 });
  
-router.get("/getStore", function (req, res) {
+router.get("/", function (req, res) {
    Store.find( (err, store) => {
     if (err) {
       return res.status(500).send(err);
@@ -49,7 +49,7 @@ router.get("/getStore", function (req, res) {
    });
 });
  
-router.put("/updateStore", function (req,res){
+router.put("/:id", function (req,res){
       let {id} = req.query;
         if (!ObjectId.isValid(req.query.id)) {
         res.status(400).send(`Invalid id: ${req.query.id}`);
@@ -70,7 +70,7 @@ router.put("/updateStore", function (req,res){
      })
     })
  
- router.delete("/deleteStore", function(req,res){
+ router.delete("/:id", function(req,res){
      let {id} = req.query;
     if (!ObjectId.isValid(req.query.id)) {
     res.status(400).send(`Invalid id: ${req.query.id}`);

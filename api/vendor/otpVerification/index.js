@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const env = require("../../../config/env");
 const config = require("../../../config")[env];
-const vendorLogin = require("../../../models/vendorLogin");
+const vendorLogin = require("../../../models/login");
 const HTTPResp = require("../../../utils/HTTPResp");
   
 router.post("/otpVerification", function (req, res) {
@@ -23,12 +23,10 @@ router.post("/otpVerification", function (req, res) {
       }
   
       if (user.phone == "0123456789" && req.body.OTP == "123456") {
-        let token = jwt.sign(
-          { phone: user.phone },
-          config.secret,
-          {
-            expiresIn: 86400,
-          }
+        let token = (
+          { phone: user.phone }
+          
+          
         );
         res.status(200).json(HTTPResp.ok({ accessToken: token,  phone: user.phone }));
       } else {
@@ -36,6 +34,6 @@ router.post("/otpVerification", function (req, res) {
       }
     });
   });
-  module.exports = router;
+module.exports = router;
 
   

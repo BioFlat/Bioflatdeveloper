@@ -2,11 +2,11 @@ const router = require("express").Router();
 const env = require("../../../config/env");
 const config = require("../../../config")[env];
 const HTTPResp = require("../../../utils/HTTPResp");
- const Wishlist = require("../../../models/Wishlist");
-  var ObjectId = require('mongoose').Types.ObjectId;
-var objectId = require('mongodb').ObjectId;
+const Wishlist = require("../../../models/Wishlist");
+const ObjectId = require('mongoose').Types.ObjectId;
+const objectId = require('mongodb').ObjectId;
 
-router.post("/addToWishlist", function (req, res) {
+router.post("/", function (req, res) {
    let { price,productName } = req.body;
 
   if (!price || !productName) {
@@ -27,7 +27,7 @@ router.post("/addToWishlist", function (req, res) {
     });
 });
  
-router.get("/getWishlist", function (req, res) {
+router.get("/", function (req, res) {
     Wishlist.find( (err, result) => {
     if (err) {
       return res.status(500).send(err);
@@ -39,7 +39,7 @@ router.get("/getWishlist", function (req, res) {
    });
 });
 
- router.delete("/deleteWishlist", function(req,res){
+ router.delete("/:id", function(req,res){
      let {id} = req.query;
     if (!ObjectId.isValid(req.query.id)) {
     res.status(400).send(`Invalid id: ${req.query.id}`);

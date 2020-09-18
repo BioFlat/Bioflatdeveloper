@@ -1,23 +1,34 @@
 const router = require("express").Router();
- const Cart = require("../../../models/Cart");
- const env = require("../../../config/env");
+const Cart = require("../../../models/Cart");
+const Product = require("../../../models/Product");
+const login = require("../../../models/login")
+const env = require("../../../config/env");
 const config = require("../../../config")[env];
 const HTTPResp = require("../../../utils/HTTPResp");
-  var ObjectId = require('mongoose').Types.ObjectId;
-var objectId = require('mongodb').ObjectId;
+const utils = require("../../../utils/verifyToken")
+const ObjectId = require('mongoose').Types.ObjectId;
+const objectId = require('mongodb').ObjectId;
 
-router.post("/addToCart", function (req, res) {
-   let { price,productName } = req.body;
-
-  if (!price || !productName) {
+router.post("/", function (req, res) {
+       let { product,quantity,price } = req.body;
+   if (!price || !product || !quantity) {
     return res.status(400).json(HTTPResp.error('badRequest'));
   }
-     let newCart = {
-        productName: req.body.productName,
-        price: req.body.price
-       };
-      newCart = new Cart(newCart);
-     newCart.save((err, result) => {
+  login.findOne({phone:req.phone},(err, user) => {
+    if (err) {
+      return res.status(500).json(HTTPResp.error("serverError"));
+    }
+       if (!user) {
+      return res.status(400).json(HTTPResp.error('notFound','user not found'));
+    }
+     // Product.findOne({productName:req.body.product},(err,result)=>{
+       let newCart = new Cart({
+         user:user._id,
+         product: req.body.product,
+         quantity: req.body.quantity,
+         price: req.body.price
+     });
+      newCart.save((err, result) => {
       if (err) {
          return res.status(500).json(HTTPResp.error("serverError"));
       }
@@ -26,8 +37,11 @@ router.post("/addToCart", function (req, res) {
        }
     });
 });
+});
+//})
+
  
-router.get("/getCart", function (req, res) {
+router.get("/", function (req, res) {
     Cart.find( (err, result) => {
     if (err) {
       return res.status(500).send(err);
@@ -38,7 +52,7 @@ router.get("/getCart", function (req, res) {
         res.status(200).json(HTTPResp.ok({result}));
    });
 });
- router.delete("/deleteCart", function(req,res){
+ router.delete("/:id", function(req,res){
      let {id} = req.query;
     if (!ObjectId.isValid(req.query.id)) {
     res.status(400).send(`Invalid id: ${req.query.id}`);

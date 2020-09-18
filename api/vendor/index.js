@@ -1,10 +1,8 @@
 const router = require('express').Router(); 
 const auth = require('./authentication');
-const login = require('./login');
-const otpVerification = require('./otpVerification');
+  const store = require('./store')
     
 router.use('/auth',auth)
-router.use('/login',login)
-router.use('/otp',otpVerification)
+  router.use('/store',store)
  
 module.exports = router;

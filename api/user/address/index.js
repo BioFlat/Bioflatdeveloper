@@ -1,87 +1,138 @@
 const router = require("express").Router();
-const env = require("../../../config/env");
+const env = require("../.././../config/env");
 const config = require("../../../config")[env];
 const HTTPResp = require("../../../utils/HTTPResp");
 const Address = require("../../../models/Address");
-const ObjectId = require('mongoose').Types.ObjectId;
-const objectId = require('mongodb').ObjectId;
-const jwt = require("jsonwebtoken");
+const User = require("../../../models/User");
+const utils = require("../../../utils/checkUser")
+const ObjectId = require("mongoose").Types.ObjectId;
+const objectId = require("mongodb").ObjectId;
 
+router.post("/", function (req, res) {
 
-router.post("/addAddress", function (req, res) {
-     let email = req.email
-
-  let { houseNumber, streetName, city, state, pincode } = req.body;
+  let { houseNumber, streetName, city, state, pincode,phone } = req.body;
 
   if (!houseNumber || !streetName || !city || !state || !pincode) {
-    return res.status(400).json(HTTPResp.error('badRequest'));
+    return res.status(400).json(HTTPResp.error("badRequest"));
   }
-     let newAddress = {
-        houseNumber: req.body.houseNumber,
-        streetName: req.body.streetName,
-        city: req.body.city,
-        state:req.body.state,
-        pincode: req.body.pincode,
-        email:email
-      };
-      newAddress = new Address(newAddress);
-     newAddress.save((err, store) => {
+  User.findOne({phone:phone},(err, user) => {
+   if (err) {
+     return res.status(500).json(HTTPResp.error("serverError"));
+   }
+   if (!user) {
+     return res.status(400).json(HTTPResp.error('notFound','user'));
+   }
+   let newAddress = new Address({
+      user:user._id,
+      houseNumber: houseNumber,
+      streetName: streetName,
+      city: city,
+      state: state,
+      pincode: pincode
+    });
+     newAddress.save((err, address) => {
+       if (err) {
+         console.log(err)
+         return res.status(500).json(HTTPResp.error("serverError"));
+       }
+       User.findByIdAndUpdate(
+         user._id,
+         {
+           $push: { addressList: address._id }
+         },
+         { new: true, useFindAndModify: false },
+         (err, result) => {
+           if (err) {
+             console.log(err);
+             return res.status(500).json(HTTPResp.error("serverError"));
+           }
+           return res.status(201).json(HTTPResp.created("address"));
+       
+         }
+       );
+      
+     });
+ });
+ 
+});
+
+router.get("/phone/:phone", function (req, res) {
+  let {phone} = req.params;  
+  User.findOne({ phone: phone }, (err, user) => {
+   if (err) {
+     return res.status(500).json(HTTPResp.error("serverError"));
+   }
+   if (!user) {
+     return res.status(400).json(HTTPResp.error('notFound','user'));
+   }
+   Address.find({user:user._id},(err,result)=>{
       if (err) {
          return res.status(500).json(HTTPResp.error("serverError"));
       }
-      if(store){
-        return res.status(201).json(HTTPResp.created("Address"));
-       }
-    });
+      res.status(200).json(HTTPResp.ok(result));
+   })
+ });
   
 });
 
-router.get("/getAddress", function (req, res) {
-   Address.find( (err, result) => {
-    if (err) {
-      return res.status(500).send(err);
-    }
-    if (!result) {
-      return res.status(404).json(HTTPResp.error('notFound','address'));
-    }
-        res.status(200).json(HTTPResp.ok({result}));
-   });
-});
- 
-router.put("/updateAddress", function (req,res){
-      let {id} = req.query;
-        if (!ObjectId.isValid(req.query.id)) {
-        res.status(400).send(`Invalid id: ${req.query.id}`);
-    }
-     const reg = {
-        houseNumber: req.body.houseNumber,
-        streetName: req.body.streetName,
-        city: req.body.city,
-        state:req.body.state,
-        pincode: req.body.pincode
+router.get("/:id", function (req, res) {
+   let { id } = req.params;
+   if (!ObjectId.isValid(id)) {
+      return res.status(400).json(HTTPResp.error('badRequest',`Invalid id: ${id}`));
+   }
+   Address.findOne({ _id: objectId(id) },(err, result) => {
+     if (err) {
+       return res.status(500).json(HTTPResp.error("serverError"));
      }
-     Address.updateOne({"_id":objectId(id)},{ $set: reg}, function(err,result){
-        if(result){
-            res.status(200).json(HTTPResp.ok());
-         }
-        if(err){
-            return res.status(400).json(HTTPResp.error('error'));
-        }
-     })
+     if (!result) {
+       return res.status(404).json(HTTPResp.error("notFound", "address"));
+     }
+     return res.status(200).json(HTTPResp.ok(result));
+   });
+ });
+
+router.put("/:id", function (req, res) {
+   let { id } = req.params;
+   if (!ObjectId.isValid(id)) {
+    return res.status(400).json(HTTPResp.error('badRequest',`Invalid id: ${id}`));
+   }
+  let { houseNumber, streetName, city, state, pincode } = req.body;
+  if (!houseNumber || !streetName || !city || !state || !pincode) {
+    return res.status(400).json(HTTPResp.error("badRequest"));
+  }
+  const reg = {
+    houseNumber: req.body.houseNumber,
+    streetName: req.body.streetName,
+    city: req.body.city,
+    state: req.body.state,
+    pincode: req.body.pincode,
+  };
+  Address.updateOne({ _id: objectId(id) }, { $set: reg }, function (
+    err,
+    result
+  ) {
+   if (err) {
+      return res.status(400).json(HTTPResp.error("serverError"));
+   }
+
+   return res.status(200).json(HTTPResp.ok());
+   
+  });
 });
 
- router.delete("/deleteAddress", function(req,res){
-     let {id} = req.query;
-    if (!ObjectId.isValid(req.query.id)) {
-    res.status(400).send(`Invalid id: ${req.query.id}`);
+router.delete("/:id", function (req, res) {
+  let { id } = req.params;
+  if (!ObjectId.isValid(id)) {
+   return res.status(400).json(HTTPResp.error('badRequest',`Invalid id: ${id}`));
+  }
+  Address.deleteOne({ _id: objectId(id) }, function (err, result) {
+    if (result) {
+      return res.status(200).json(HTTPResp.ok());
     }
-    Address.deleteOne({"_id":objectId(id)}, function(err,result){
-        if(result){
-            res.status(200).json(HTTPResp.ok());
-         }
-        if(err){
-            return res.status(400).json(HTTPResp.error('error'));
-        }
-    })
-})
-  module.exports = router;
+    if (err) {
+      return res.status(500).json(HTTPResp.error("serverError"));
+    }
+  });
+});
+
+module.exports = router;

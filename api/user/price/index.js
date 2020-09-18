@@ -2,11 +2,11 @@ const router = require("express").Router();
 const env = require("../../../config/env");
 const config = require("../../../config")[env];
 const HTTPResp = require("../../../utils/HTTPResp");
- const Price = require("../../../models/Price");
-  var ObjectId = require('mongoose').Types.ObjectId;
-var objectId = require('mongodb').ObjectId;
+const Price = require("../../../models/Price");
+const ObjectId = require('mongoose').Types.ObjectId;
+const objectId = require('mongodb').ObjectId;
 
-router.post("/addPrice", function (req, res) {
+router.post("/", function (req, res) {
    let { price } = req.body;
 
   if (!price) {
@@ -34,7 +34,7 @@ router.post("/addPrice", function (req, res) {
   });
 });
  
-router.get("/getPrice", function (req, res) {
+router.get("/", function (req, res) {
     Price.find( (err, result) => {
     if (err) {
       return res.status(500).send(err);
@@ -46,7 +46,7 @@ router.get("/getPrice", function (req, res) {
    });
 });
  
-router.put("/updatePrice", function (req,res){var token = req.headers['token'];
+router.put("/:id", function (req,res){var token = req.headers['token'];
       let {id} = req.query;
         if (!ObjectId.isValid(req.query.id)) {
         res.status(400).send(`Invalid id: ${req.query.id}`);
@@ -63,7 +63,7 @@ router.put("/updatePrice", function (req,res){var token = req.headers['token'];
         }
      })
 });
- router.delete("/deletePrice", function(req,res){
+ router.delete("/:id", function(req,res){
      let {id} = req.query;
     if (!ObjectId.isValid(req.query.id)) {
     res.status(400).send(`Invalid id: ${req.query.id}`);

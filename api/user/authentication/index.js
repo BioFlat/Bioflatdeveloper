@@ -9,7 +9,7 @@ var ObjectId = require('mongoose').Types.ObjectId;
 var objectId = require('mongodb').ObjectId;
 
 
-router.post("/createUser", function (req, res) {
+router.post("/", function (req, res) {
    let {name, email, password, confirmPassword, phone } = req.body;
 
   if (!email || !password || !confirmPassword || !name || !phone) {
@@ -44,14 +44,8 @@ router.post("/createUser", function (req, res) {
   });
 });
 
-router.get("/getProfile", function (req, res) {
-
-  var token = req.headers['token'];
-  if (!token) return res.status(401).send({ auth: false, message: 'No token provided.' });
-  
-  jwt.verify(token, config.secret, function(err, decoded) {
-    if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
-    req.email = decoded.email;
+router.get("/", function (req, res) {
+      req.email = decoded.email;
     let email = req.email
 
   User.findOne({"email":email}, (err, result) => {
@@ -63,16 +57,10 @@ router.get("/getProfile", function (req, res) {
     }
         res.status(200).json(HTTPResp.ok({result}));
    });
-  })
-});
+ });
 
 router.put("/updateProfile", function (req,res){
-  var token = req.headers['token'];
-  if (!token) return res.status(401).send({ auth: false, message: 'No token provided.' });
-  
-  jwt.verify(token, config.secret, function(err, decoded) {
-    if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
-    req.email = decoded.email;
+     req.email = decoded.email;
     let email = req.email
   let {password} = req.body;
   let hashedPassword = bcrypt.hashSync(password, 8);
@@ -90,7 +78,6 @@ router.put("/updateProfile", function (req,res){
          return res.status(400).json(HTTPResp.error('error'));
      }
   })
-})
-});
+ });
 
 module.exports = router;

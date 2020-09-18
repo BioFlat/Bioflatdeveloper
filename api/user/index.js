@@ -1,22 +1,18 @@
 const router = require('express').Router(); 
 const auth = require('./authentication');
-const store = require('./store');
-const address = require("./address")
-const product = require("./product")
-const price = require('./price')
+ const address = require("./address")
+ const price = require('./price')
 const cart = require("./cart")
 const wishlist = require("./wishList");
-const myOrder = require("./myOrder")
+const order = require("./order")
 const notification = require("./notification")
    
 router.use('/auth',auth)
-router.use('/Store',store) 
-router.use('/Address',address)
-router.use('/Product',product)
-router.use('/Price',price)
-router.use('/Cart',cart)
-router.use('/Wishlist',wishlist)
-router.use('/myOrder',myOrder)
-router.use('/Notification',notification)
+router.use('/address',address)
+router.use('/price',price)
+router.use('/cart',cart)
+router.use('/wishlist',wishlist)
+router.use('/order',order)
+router.use('/notification',notification)
 
 module.exports = router;

@@ -2,12 +2,11 @@ const router = require("express").Router();
 const env = require("../../../config/env");
 const config = require("../../../config")[env];
 const HTTPResp = require("../../../utils/HTTPResp");
- const Myorder = require("../../../models/Myorder");
+const Myorder = require("../../../models/Myorder");
 const Address = require("../../../models/Address");
-  const jwt = require("jsonwebtoken");
 
  
-router.post("/order", function (req, res) {
+router.post("/", function (req, res) {
      let email = req.email
 
     Address.findOne({"email":email}, (err, result) => {
@@ -29,7 +28,7 @@ router.post("/order", function (req, res) {
   })
 });
  
-router.get("/getmyOrder", function (req, res) {
+router.get("/", function (req, res) {
        let email = req.email
   
     Myorder.find({"email":email}, (err, result) => {
@@ -42,4 +41,5 @@ router.get("/getmyOrder", function (req, res) {
           res.status(200).json(HTTPResp.ok({result}));
      });
   });
+  
  module.exports = router;

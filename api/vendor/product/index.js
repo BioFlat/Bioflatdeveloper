@@ -2,14 +2,15 @@ const router = require("express").Router();
 const env = require("../../../config/env");
 const config = require("../../../config")[env];
 const HTTPResp = require("../../../utils/HTTPResp");
- const Product = require("../../../models/Product");
-  var ObjectId = require('mongoose').Types.ObjectId;
-var objectId = require('mongodb').ObjectId;
+const Product = require("../../../models/Product");
+const Price = require("../../../models/Price");
+const ObjectId = require('mongoose').Types.ObjectId;
+const objectId = require('mongodb').ObjectId;
 
-router.post("/addProduct", function (req, res) {
-   let { productName } = req.body;
+router.post("/", function (req, res) {
+   let { productName, price } = req.body;
 
-  if (!productName) {
+  if (!productName || !price) {
     return res.status(400).json(HTTPResp.error('badRequest'));
   }
    Product.findOne({ productName: productName }, (err, result) => {
@@ -20,9 +21,12 @@ router.post("/addProduct", function (req, res) {
       return res.status(400).json(HTTPResp.error('exists','product'));
     }
     let newProduct = {
-        productName: req.body.productName
+      
        };
-      newProduct = new Product(newProduct);
+      newProduct = new Product({
+        productName: req.body.productName,
+        price: req.body.price
+      });
      newProduct.save((err, result) => {
       if (err) {
          return res.status(500).json(HTTPResp.error("serverError"));
@@ -34,7 +38,7 @@ router.post("/addProduct", function (req, res) {
   });
 });
  
-router.get("/getProduct", function (req, res) {
+router.get("/", function (req, res) {
     Product.find( (err, result) => {
     if (err) {
       return res.status(500).send(err);
@@ -46,13 +50,14 @@ router.get("/getProduct", function (req, res) {
    });
 });
  
-router.put("/updateProduct", function (req,res){
+router.put("/:id", function (req,res){
       let {id} = req.query;
         if (!ObjectId.isValid(req.query.id)) {
         res.status(400).send(`Invalid id: ${req.query.id}`);
     }
      const reg = {
-        productName: req.body.productName
+        productName: req.body.productName,
+        price: req.body.price
      }
       Product.updateOne({"_id":objectId(id)},{ $set: reg}, function(err,result){
         if(result){
@@ -63,7 +68,7 @@ router.put("/updateProduct", function (req,res){
         }
      })
 });
- router.delete("/deleteProduct", function(req,res){
+ router.delete("/:id", function(req,res){
      let {id} = req.query;
     if (!ObjectId.isValid(req.query.id)) {
     res.status(400).send(`Invalid id: ${req.query.id}`);
