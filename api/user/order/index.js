@@ -1,21 +1,29 @@
 const router = require("express").Router();
 const env = require("../../../config/env");
 const config = require("../../../config")[env];
+const User = require("../../../models/User");
 const HTTPResp = require("../../../utils/HTTPResp");
 const Myorder = require("../../../models/Myorder");
 const Address = require("../../../models/Address");
 
  
 router.post("/", function (req, res) {
-     let email = req.email
+  let { product,status } = req.body;
+      User.findOne({phone:req.currentUser.phone_number},(err, user) => {
+      if (err) {
+        return res.status(500).json(HTTPResp.error("serverError"));
+      }
+      if (!user) {
+        return res.status(400).json(HTTPResp.error('notFound','user'));
+      }
+    Address.findOne({user:user._id}, (err, result) => {
 
-    Address.findOne({email:email}, (err, result) => {
          let newOrder = {
-        product: req.body.houseNumber,
-        Delivery: result,
-        status: req.body.status,
-        email:email
-       };
+        user:user._id,
+        product: product,
+        Delivery: result.houseNumber && result.streetName,
+        status: status,
+        };
        newOrder = new Myorder(newOrder);
        newOrder.save((err, store) => {
       if (err) {
@@ -27,11 +35,11 @@ router.post("/", function (req, res) {
     });
   })
 });
+})
  
 router.get("/", function (req, res) {
-       let email = req.email
-  
-    Myorder.find({"email":email}, (err, result) => {
+   
+    Myorder.find( (err, result) => {
       if (err) {
         return res.status(500).send(err);
       }
