@@ -4,12 +4,7 @@ const User = require('./User');
 const Schema = mongoose.Schema;
 
 const AddressSchema = new Schema({
-  user: {
-    type:mongoose.Schema.Types.ObjectId,
-    ref:"User",
-    required:true,
-  },
-  
+    user: {type: String,required:true},
     houseNumber: {type: String},
     streetName: {type: String},
     city: {type: String},

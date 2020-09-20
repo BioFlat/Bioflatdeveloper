@@ -2,21 +2,31 @@ const router = require("express").Router();
 const env = require("../../../config/env");
 const config = require("../../../config")[env];
 const HTTPResp = require("../../../utils/HTTPResp");
+const User = require("../../../models/User");
 const Wishlist = require("../../../models/Wishlist");
 const ObjectId = require('mongoose').Types.ObjectId;
 const objectId = require('mongodb').ObjectId;
 
 router.post("/", function (req, res) {
-   let { price,productName } = req.body;
+   let { price,productName,description, size } = req.body;
 
-  if (!price || !productName) {
+  if (!price || !productName|| !description || !size ) {
     return res.status(400).json(HTTPResp.error('badRequest'));
-  }
-     let newWishlist = {
-        productName: req.body.productName,
-        price: req.body.price
-       };
-      newWishlist = new Wishlist(newWishlist);
+   }
+   User.findOne({phone:req.currentUser.phone_number},(err, user) => {
+    if (err) {
+      return res.status(500).json(HTTPResp.error("serverError"));
+    }
+       if (!user) {
+      return res.status(400).json(HTTPResp.error('notFound','user not found'));
+    }
+       newWishlist = new Wishlist({
+        user:user._id,
+        productName: productName,
+        description:description,
+        size:size,
+        price: price
+      });
      newWishlist.save((err, result) => {
       if (err) {
          return res.status(500).json(HTTPResp.error("serverError"));
@@ -26,6 +36,7 @@ router.post("/", function (req, res) {
        }
     });
 });
+})
  
 router.get("/", function (req, res) {
     Wishlist.find( (err, result) => {

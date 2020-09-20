@@ -5,7 +5,7 @@ const env = require("../../config/env");
 const config = require("../../config")[env];
 const login = require("../../models/login");
 const HTTPResp = require("../../utils/HTTPResp");
-const generate = require("../../utils/verifyToken")
+const generate = require("../../utils/Token")
 var ObjectId = require('mongoose').Types.ObjectId;
 var objectId = require('mongodb').ObjectId;
 
@@ -23,7 +23,7 @@ router.post("/login", function (req, res) {
        if (err) {
           return res.status(500).json(HTTPResp.error("serverError"));
        }
-       return res.status(201).json(HTTPResp.created("Accept"));
+       return res.status(201).json("Accepted");
      });
  });
 

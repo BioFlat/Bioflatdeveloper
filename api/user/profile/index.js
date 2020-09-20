@@ -4,9 +4,12 @@ const bcrypt = require("bcryptjs");
 const env = require("../../../config/env");
 const config = require("../../../config")[env];
 const User = require("../../../models/User");
+const formidable = require("formidable");
+const path = require("path");
+const Profile = require("../../../models/profile")
 const HTTPResp = require("../../../utils/HTTPResp");
-var ObjectId = require('mongoose').Types.ObjectId;
-var objectId = require('mongodb').ObjectId;
+const ObjectId = require('mongoose').Types.ObjectId;
+const objectId = require('mongodb').ObjectId;
 
 
 router.post("/", function (req, res) {
@@ -18,23 +21,39 @@ router.post("/", function (req, res) {
   if (password != confirmPassword) {
     return res.status(400).json(HTTPResp.passwordMismatch);
   }
-  User.findOne({ email: email }, (err, user) => {
+  User.findOne({phone:req.currentUser.phone_number},(err, user) => {
     if (err) {
       return res.status(500).json(HTTPResp.error("serverError"));
     }
-    if (user) {
-      return res.status(400).json(HTTPResp.error('exists','user'));
+       if (!user) {
+      return res.status(400).json(HTTPResp.error('notFound','user not found'));
     }
-    let hashedPassword = bcrypt.hashSync(password, 8);
-    let newUser = {
-      email: req.body.email,
-      password: hashedPassword,
-      name: req.body.name,
-      phone: req.body.phone
-    };
+    
+    var form = new formidable.IncomingForm();
+   form.parse(req);
+
+   form.on('fileBegin', function (name, file){
+       file.path = __dirname + '../../../upload' + file.name;
+       
   
-    newUser = new User(newUser);
-    newUser.save((err, user) => {
+
+   form.on('file', function (name, file){
+         
+   });
+
+   form.parse(req, function(err, fields, files) {
+       if (err) next(err);
+ 
+    let hashedPassword = bcrypt.hashSync(password, 8);
+     newProfile = new Profile({
+      user:user._id,
+      email: email,
+      password: hashedPassword,
+      name: name,
+      profilePicture: file.path,
+      phone: phone
+    });
+    newProfile.save((err, user) => {
       if (err) {
         console.log(err);
         return res.status(500).json(HTTPResp.error("serverError"));
@@ -43,12 +62,14 @@ router.post("/", function (req, res) {
     });
   });
 });
+ })
+})
 
 router.get("/", function (req, res) {
       req.email = decoded.email;
     let email = req.email
 
-  User.findOne({"email":email}, (err, result) => {
+    Profile.findOne({"email":email}, (err, result) => {
     if (err) {
       return res.status(500).send(err);
     }
@@ -59,7 +80,7 @@ router.get("/", function (req, res) {
    });
  });
 
-router.put("/updateProfile", function (req,res){
+router.put("/:id", function (req,res){
      req.email = decoded.email;
     let email = req.email
   let {password} = req.body;
@@ -70,7 +91,7 @@ router.put("/updateProfile", function (req,res){
     name: req.body.name,
     phone: req.body.phone
   }
-  User.updateOne({"email":email},{ $set: reg}, function(err,result){
+  Profile.updateOne({"email":email},{ $set: reg}, function(err,result){
      if(result){
          res.status(200).json(HTTPResp.ok());
       }

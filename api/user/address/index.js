@@ -15,7 +15,7 @@ router.post("/", function (req, res) {
   if (!houseNumber || !streetName || !city || !state || !pincode) {
     return res.status(400).json(HTTPResp.error("badRequest"));
   }
-  User.findOne({phone:phone},(err, user) => {
+  User.findOne({phone:req.currentUser.phone_number},(err, user) => {
    if (err) {
      return res.status(500).json(HTTPResp.error("serverError"));
    }
@@ -56,8 +56,8 @@ router.post("/", function (req, res) {
  
 });
 
-router.get("/phone/:phone", function (req, res) {
-  let {phone} = req.params;  
+router.get("phone/:phone", function (req, res) {
+  let {phone} = req.query;  
   User.findOne({ phone: phone }, (err, user) => {
    if (err) {
      return res.status(500).json(HTTPResp.error("serverError"));
@@ -65,7 +65,25 @@ router.get("/phone/:phone", function (req, res) {
    if (!user) {
      return res.status(400).json(HTTPResp.error('notFound','user'));
    }
-   Address.find({user:user._id},(err,result)=>{
+    Address.find((err,result)=>{
+      if (err) {
+         return res.status(500).json(HTTPResp.error("serverError"));
+      }
+      res.status(200).json(HTTPResp.ok(result));
+   })
+ });
+  
+});
+
+router.get("/", function (req, res) {
+   User.findOne({ phone: req.currentUser.phone_number }, (err, user) => {
+   if (err) {
+     return res.status(500).json(HTTPResp.error("serverError"));
+   }
+   if (!user) {
+     return res.status(400).json(HTTPResp.error('notFound','user'));
+   }
+   Address.find((err,result)=>{
       if (err) {
          return res.status(500).json(HTTPResp.error("serverError"));
       }
@@ -76,11 +94,11 @@ router.get("/phone/:phone", function (req, res) {
 });
 
 router.get("/:id", function (req, res) {
-   let { id } = req.params;
+   let { id } = req.query;
    if (!ObjectId.isValid(id)) {
       return res.status(400).json(HTTPResp.error('badRequest',`Invalid id: ${id}`));
    }
-   Address.findOne({ _id: objectId(id) },(err, result) => {
+    Address.findOne({ _id: objectId(id) },(err, result) => {
      if (err) {
        return res.status(500).json(HTTPResp.error("serverError"));
      }
@@ -92,7 +110,7 @@ router.get("/:id", function (req, res) {
  });
 
 router.put("/:id", function (req, res) {
-   let { id } = req.params;
+   let { id } = req.query;
    if (!ObjectId.isValid(id)) {
     return res.status(400).json(HTTPResp.error('badRequest',`Invalid id: ${id}`));
    }
@@ -101,11 +119,11 @@ router.put("/:id", function (req, res) {
     return res.status(400).json(HTTPResp.error("badRequest"));
   }
   const reg = {
-    houseNumber: req.body.houseNumber,
-    streetName: req.body.streetName,
-    city: req.body.city,
-    state: req.body.state,
-    pincode: req.body.pincode,
+    houseNumber: houseNumber,
+    streetName: streetName,
+    city: city,
+    state: state,
+    pincode: pincode,
   };
   Address.updateOne({ _id: objectId(id) }, { $set: reg }, function (
     err,
@@ -121,7 +139,7 @@ router.put("/:id", function (req, res) {
 });
 
 router.delete("/:id", function (req, res) {
-  let { id } = req.params;
+  let { id } = req.query;
   if (!ObjectId.isValid(id)) {
    return res.status(400).json(HTTPResp.error('badRequest',`Invalid id: ${id}`));
   }

@@ -5,7 +5,8 @@ const login = require("../../../models/login")
 const env = require("../../../config/env");
 const config = require("../../../config")[env];
 const HTTPResp = require("../../../utils/HTTPResp");
-const utils = require("../../../utils/verifyToken")
+const utils = require("../../../utils/Token");
+const User = require("../../../models/User");
 const ObjectId = require('mongoose').Types.ObjectId;
 const objectId = require('mongodb').ObjectId;
 
@@ -14,7 +15,7 @@ router.post("/", function (req, res) {
    if (!price || !product || !quantity) {
     return res.status(400).json(HTTPResp.error('badRequest'));
   }
-  login.findOne({phone:req.phone},(err, user) => {
+  User.findOne({phone:req.currentUser.phone_number},(err, user) => {
     if (err) {
       return res.status(500).json(HTTPResp.error("serverError"));
     }
