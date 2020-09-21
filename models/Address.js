@@ -4,14 +4,12 @@ const User = require('./User');
 const Schema = mongoose.Schema;
 
 const AddressSchema = new Schema({
-    user: {type: String,required:true},
-    houseNumber: {type: String},
-    streetName: {type: String},
-    city: {type: String},
-    state: {type: String},
-    pincode: {type: String},
-    email:{type: String},
-    createdOn: {type: Date,default:Date.now},
-  
+    userId: {type: String,required:true},
+    addressName :  {type: String,required:true},
+    address: { type: String ,required:true},
+    city: { type: String ,required:true},
+    state: { type: String ,required:true},
+    provience: { type: String ,required:true},
+    createdOn: { type: Date, default: Date.now }
 });
 module.exports = mongoose.model('Address',AddressSchema);

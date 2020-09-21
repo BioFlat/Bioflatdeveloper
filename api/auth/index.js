@@ -44,7 +44,10 @@ router.post("/login", function (req, res) {
     }
 
     if (user.phone == "0123456789" && req.body.OTP == "123456") {
-      let token = generate.generateToken({ phone: user.phone });
+      let token =jwt.sign(
+        {phone: user.phone},config.secret,{
+          expiresIn: 604800
+       });
 
       res.status(200).json(HTTPResp.ok({ accessToken: token,  phone: user.phone }));
     } else {

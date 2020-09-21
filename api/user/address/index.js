@@ -1,100 +1,65 @@
 const router = require("express").Router();
-const env = require("../.././../config/env");
-const config = require("../../../config")[env];
 const HTTPResp = require("../../../utils/HTTPResp");
 const Address = require("../../../models/Address");
-const User = require("../../../models/User");
-const utils = require("../../../utils/checkUser")
+const Profile = require("../../../models/Profile");
 const ObjectId = require("mongoose").Types.ObjectId;
 const objectId = require("mongodb").ObjectId;
 
 router.post("/", function (req, res) {
 
-  let { houseNumber, streetName, city, state, pincode,phone } = req.body;
+  let { addressName, address, city, state, provience } = req.body;
+  let { user_id } = req.currentUser;
 
-  if (!houseNumber || !streetName || !city || !state || !pincode) {
+  if (!addressName || !address || !city || !state || !provience) {
     return res.status(400).json(HTTPResp.error("badRequest"));
   }
-  User.findOne({phone:req.currentUser.phone_number},(err, user) => {
-   if (err) {
-     return res.status(500).json(HTTPResp.error("serverError"));
-   }
-   if (!user) {
-     return res.status(400).json(HTTPResp.error('notFound','user'));
-   }
-   let newAddress = new Address({
-      user:user._id,
-      houseNumber: houseNumber,
-      streetName: streetName,
-      city: city,
-      state: state,
-      pincode: pincode
+ 
+  try{
+
+    let newAddress = new Address({
+      userId:user_id,
+      addressName, 
+      address, 
+      city, 
+      state,
+      provience
     });
      newAddress.save((err, address) => {
        if (err) {
          console.log(err)
          return res.status(500).json(HTTPResp.error("serverError"));
        }
-       User.findByIdAndUpdate(
-         user._id,
-         {
-           $push: { addressList: address._id }
-         },
-         { new: true, useFindAndModify: false },
-         (err, result) => {
-           if (err) {
-             console.log(err);
-             return res.status(500).json(HTTPResp.error("serverError"));
-           }
-           return res.status(201).json(HTTPResp.created("address"));
-       
-         }
-       );
+       Profile.findOneAndUpdate({ userId: user_id }, { $inc: { addressCount: 1 } },{new: true, upsert: true},(err,result)=>{
+        if (err) {
+          console.log(err)
+          return res.status(500).json(HTTPResp.error("serverError"));
+        }
+        return res.status(201).json(HTTPResp.created('address'));
+       })
       
      });
- });
+
+   }catch(err){
+        console.log(err);
+        return res.status(500).json(HTTPResp.error("serverError"));
+   }
  
 });
 
-router.get("phone/:phone", function (req, res) {
-  let {phone} = req.query;  
-  User.findOne({ phone: phone }, (err, user) => {
-   if (err) {
-     return res.status(500).json(HTTPResp.error("serverError"));
-   }
-   if (!user) {
-     return res.status(400).json(HTTPResp.error('notFound','user'));
-   }
-    Address.find((err,result)=>{
-      if (err) {
-         return res.status(500).json(HTTPResp.error("serverError"));
-      }
-      res.status(200).json(HTTPResp.ok(result));
-   })
- });
-  
-});
 
 router.get("/", function (req, res) {
-   User.findOne({ phone: req.currentUser.phone_number }, (err, user) => {
-   if (err) {
-     return res.status(500).json(HTTPResp.error("serverError"));
-   }
-   if (!user) {
-     return res.status(400).json(HTTPResp.error('notFound','user'));
-   }
-   Address.find((err,result)=>{
-      if (err) {
-         return res.status(500).json(HTTPResp.error("serverError"));
-      }
-      res.status(200).json(HTTPResp.ok(result));
-   })
- });
+  let { user_id } = req.currentUser;
+  Address.find({userId:user_id},(err,result)=>{
+    if (err) {
+       return res.status(500).json(HTTPResp.error("serverError"));
+    }
+    return res.status(200).json(HTTPResp.ok(result));
+ })
   
 });
 
 router.get("/:id", function (req, res) {
-   let { id } = req.query;
+   let { id } = req.params;
    if (!ObjectId.isValid(id)) {
       return res.status(400).json(HTTPResp.error('badRequest',`Invalid id: ${id}`));
    }
@@ -110,22 +75,15 @@ router.get("/:id", function (req, res) {
  });
 
 router.put("/:id", function (req, res) {
-   let { id } = req.query;
+   let { id } = req.params;
    if (!ObjectId.isValid(id)) {
     return res.status(400).json(HTTPResp.error('badRequest',`Invalid id: ${id}`));
    }
-  let { houseNumber, streetName, city, state, pincode } = req.body;
-  if (!houseNumber || !streetName || !city || !state || !pincode) {
+   let { addressName, address, city, state, provience } = req.body;
+   if (!addressName || !address || !city || !state || !provience) {
     return res.status(400).json(HTTPResp.error("badRequest"));
   }
-  const reg = {
-    houseNumber: houseNumber,
-    streetName: streetName,
-    city: city,
-    state: state,
-    pincode: pincode,
-  };
-  Address.updateOne({ _id: objectId(id) }, { $set: reg }, function (
+  Address.updateOne({ _id: objectId(id) }, { $set: {addressName, address, city, state, provience} }, function (
     err,
     result
   ) {
@@ -139,7 +97,7 @@ router.put("/:id", function (req, res) {
 });
 
 router.delete("/:id", function (req, res) {
-  let { id } = req.query;
+  let { id } = req.params;
   if (!ObjectId.isValid(id)) {
    return res.status(400).json(HTTPResp.error('badRequest',`Invalid id: ${id}`));
   }

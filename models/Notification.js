@@ -4,9 +4,10 @@ const Schema = mongoose.Schema;
 
 const NotificationSchema = new Schema(
   {
-    user: {type: String,required:true},
-    title: {type: String},
-    description: {type: String},
+    userId: {type: String,required:true},
+    imageRef:{type:String,required:true},
+    title: {type: String,required:true},
+    description: {type: String,required:true},
     createdOn: {type:Date,default:Date.now},
   }
 );
