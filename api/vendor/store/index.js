@@ -8,18 +8,20 @@ var objectId = require('mongodb').ObjectId;
 
 router.post("/", function (req, res) {
   let { storeTitle, storeDescription, rating, latitude, longitude } = req.body;
+  let { user_id } = req.currentUser;
 
   if (!storeTitle || !storeDescription || !rating || !latitude || !longitude) {
     return res.status(400).json(HTTPResp.error('badRequest'));
   }
   try {
-    newStore = new Store(
+    newStore = new Store({
+      userId:user_id,
       storeTitle,
       storeDescription,
       rating,
       latitude,
       longitude
-    );
+    });
     newStore.save((err, store) => {
       if (err) {
         return res.status(500).json(HTTPResp.error("serverError"));
@@ -36,7 +38,8 @@ router.post("/", function (req, res) {
 
 
 router.get("/", function (req, res) {
-  Store.find((err, store) => {
+  let { user_id } = req.currentUser;
+  Store.find({userId:user_id},(err, store) => {
     if (err) {
       return res.status(500).send(err);
     }
@@ -48,7 +51,7 @@ router.get("/", function (req, res) {
 });
 
 router.put("/:id", function (req, res) {
-  let { id } = req.query;
+  let { id } = req.params;
   if (!ObjectId.isValid(id)) {
     res.status(400).send(`Invalid id: ${id}`);
   }
@@ -71,7 +74,7 @@ router.put("/:id", function (req, res) {
 })
 
 router.delete("/:id", function (req, res) {
-  let { id } = req.query;
+  let { id } = req.params;
   if (!ObjectId.isValid(id)) {
     res.status(400).send(`Invalid id: ${id}`);
   }

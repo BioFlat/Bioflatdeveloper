@@ -4,6 +4,8 @@ const Schema = mongoose.Schema;
 
 const AccountSchema = new Schema(
   {
+    userId: { type: String, required: true },
+    storeLogo: { type: String, required: true },
     ownersFullname: { type: String, required: true },
     storeName: { type: String, required: true },
     address: { type: String, required: true },

@@ -13,14 +13,6 @@ router.post("/", function (req, res) {
   if (!itemName || !description || !price) {
     return res.status(400).json(HTTPResp.error('badRequest'));
   }
-//    Store.findOne({ storeTitle: storeTitle }, (err, store) => {
-//     if (err) {
-//       return res.status(500).json(HTTPResp.error("serverError"));
-//     }
-//     if (store) {
-//       return res.status(400).json(HTTPResp.error('exists','storeTitle'));
-//     }
-
        newInventory = new Inventory({
         itemName: req.body.itemName,
         description: req.body.description,

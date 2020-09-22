@@ -4,6 +4,7 @@ const Schema = mongoose.Schema;
 
 const StoreSchema = new Schema(
   {
+    userId: { type: String, required: true },
     storeTitle: { type: String, required: true },
     storeDescription: { type: String, required: true },
     rating: { type: String, required: true },
