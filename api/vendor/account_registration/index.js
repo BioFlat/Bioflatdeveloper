@@ -6,6 +6,9 @@ const Account = require("../../../models/Account");
 const HTTPResp = require("../../../utils/HTTPResp");
 const fs = require('fs');
 const path = require('path');
+const ObjectId = require("mongoose").Types.ObjectId;
+const objectId = require("mongodb").ObjectId;
+
 
 
 router.post("/", function (req, res) {
@@ -73,5 +76,59 @@ router.get("/", function (req, res) {
   });
 });
 
+
+router.put("/:id", function (req, res) {
+  const { user_id } = req.currentUser;
+  const form = new formidable.IncomingForm();
+
+  let newPath = path.resolve(__dirname + '../../../../uploads/storeLogo');
+
+  form.parse(req, function (err, fields, files) {
+    if (err) {
+      return res.status(500).json(HTTPResp.error("serverError"));
+    }
+    const oldPath = files.storeLogo.path;
+    const rawData = fs.readFileSync(oldPath)
+    const fileName = user_id + '.' + files.storeLogo.name.split('.')[1];
+    newPath += '/' + fileName;
+    fs.writeFile(newPath, rawData, function (err) {
+      if (err) {
+        return res.status(500).json(HTTPResp.error("serverError"));
+      }
+      const ownerName = fields.ownerName,
+      storeName = fields.storeName,
+      address = fields.address,
+      city = fields.city,
+      state = fields.state,
+      pincode = fields.pincode,
+      latitude = fields.latitude,
+      longitude = fields.longitude;
+      if (!ownerName || !storeName || !address || !city || !state || !pincode || !latitude || !longitude) {
+        return res.status(400).json(HTTPResp.error("badRequest"));
+      }
+      Account.updateOne({ _id: objectId(id), vendorId: user_id }, { $set: { ownerName, storeName, address, city, state, pincode, latitude, longitude, storeLogo: '/storeLogo/' + fileName } }, function (err, result) {
+        if (err) {
+          return res.status(400).json(HTTPResp.error("serverError"));
+        }
+        return res.status(200).json(HTTPResp.ok());
+      });
+    });
+  })
+})
+
+router.delete("/:id", function (req, res) {
+  let { id } = req.query;
+  if (!ObjectId.isValid(id)) {
+    return res.status(400).json(HTTPResp.error('badRequest', `Invalid id: ${id}`));
+  }
+  Account.deleteOne({ _id: objectId(id) }, function (err, result) {
+    if (err) {
+      return res.status(500).json(HTTPResp.error("serverError"));
+    }
+    if (result) {
+      return res.status(200).json(HTTPResp.ok());
+    }
+  });
+});
 
 module.exports = router;

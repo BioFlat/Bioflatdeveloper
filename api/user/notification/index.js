@@ -52,6 +52,7 @@ router.put("/:id", function (req, res) {
   const reg = {
     title: req.body.title,
     description: req.body.description,
+    iconRef: req.body.iconRef
   };
   Notification.updateOne({ _id: objectId(id) }, { $set: reg }, function (err) {
     if (err) {
