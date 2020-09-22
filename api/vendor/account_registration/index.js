@@ -26,23 +26,27 @@ router.post("/", function (req, res) {
       if (err) {
         return res.status(500).json(HTTPResp.error("serverError"));
       }
-      const ownersFullname = fields.ownersFullname,
+      const ownerName = fields.ownerName,
       storeName = fields.storeName,
       address = fields.address,
       city = fields.city,
       state = fields.state,
-      pincode = fields.pincode;
-      if (!ownersFullname || !storeName || !address || !city || !state || !pincode) {
+      pincode = fields.pincode,
+      latitude = fields.latitude,
+      longitude = fields.longitude;
+      if (!ownerName || !storeName || !address || !city || !state || !pincode || !latitude || !longitude) {
         return res.status(400).json(HTTPResp.error("badRequest"));
       }
       let newAccount = new Account({
-        userId: user_id,
-        ownersFullname,
+        vendorId: user_id,
+        ownerName,
         storeName,
         address,
         city,
         state,
         pincode,
+        latitude,
+        longitude,
         storeLogo: '/storeLogo/' + fileName
       });
       newAccount.save((err) => {
@@ -58,7 +62,7 @@ router.post("/", function (req, res) {
 
 router.get("/", function (req, res) {
   const { user_id } = req.currentUser;
-  Account.findOne({ userId: user_id }, (err, result) => {
+  Account.findOne({ vendorId: user_id }, (err, result) => {
     if (err) {
       return res.status(500).send(err);
     }
