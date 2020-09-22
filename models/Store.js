@@ -4,11 +4,12 @@ const Schema = mongoose.Schema;
 
 const StoreSchema = new Schema(
   {
-    storeTitle: {type: String},
-    storeDescription: {type: String},
-    rating: {type: String},
-    distance: {type:String},
-    createdOn: {type: Date,default:Date.now},
+    storeTitle: { type: String, required: true },
+    storeDescription: { type: String, required: true },
+    rating: { type: String, required: true },
+    latitude: { type: String, required: true },
+    longitude: { type: String, required: true },
+    createdOn: { type: Date, default: Date.now },
   }
 );
 module.exports = mongoose.model('Store', StoreSchema);

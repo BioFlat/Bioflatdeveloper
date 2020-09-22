@@ -8,24 +8,19 @@ const ObjectId = require('mongoose').Types.ObjectId;
 const objectId = require('mongodb').ObjectId;
 
 router.post("/", function (req, res) {
+  let { user_id } = req.currentUser;
    let { price,productName,description, size } = req.body;
 
   if (!price || !productName|| !description || !size ) {
     return res.status(400).json(HTTPResp.error('badRequest'));
    }
-   User.findOne({phone:req.currentUser.phone_number},(err, user) => {
-    if (err) {
-      return res.status(500).json(HTTPResp.error("serverError"));
-    }
-       if (!user) {
-      return res.status(400).json(HTTPResp.error('notFound','user not found'));
-    }
+ try{
        newWishlist = new Wishlist({
-        user:user._id,
-        productName: productName,
-        description:description,
-        size:size,
-        price: price
+        userId:user_id,
+        productName,
+        description,
+        size,
+        price
       });
      newWishlist.save((err, result) => {
       if (err) {
@@ -35,11 +30,17 @@ router.post("/", function (req, res) {
         return res.status(201).json(HTTPResp.created("wishlist"));
        }
     });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json(HTTPResp.error("serverError"));
+  }
 });
-})
+
  
 router.get("/", function (req, res) {
-    Wishlist.find( (err, result) => {
+  let { user_id } = req.currentUser;
+
+    Wishlist.find({userId:user_id}, (err, result) => {
     if (err) {
       return res.status(500).send(err);
     }
@@ -51,17 +52,18 @@ router.get("/", function (req, res) {
 });
 
  router.delete("/:id", function(req,res){
-     let {id} = req.query;
-    if (!ObjectId.isValid(req.query.id)) {
-    res.status(400).send(`Invalid id: ${req.query.id}`);
+     let {id} = req.params;
+    if (!ObjectId.isValid(id)) {
+    res.status(400).send(`Invalid id: ${id}`);
     }
     Wishlist.deleteOne({"_id":objectId(id)}, function(err,result){
+      if(err){
+        return res.status(400).json(HTTPResp.error('error'));
+    }
         if(result){
             res.status(200).json(HTTPResp.ok());
          }
-        if(err){
-            return res.status(400).json(HTTPResp.error('error'));
-        }
+        
     })
 })
   module.exports = router;

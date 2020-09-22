@@ -7,10 +7,10 @@ const objectId = require("mongodb").ObjectId;
 
 router.post("/", function (req, res) {
 
-  let { addressName, address, city, state, provience } = req.body;
+  let { addressName, address, city, state, pincode } = req.body;
   let { user_id } = req.currentUser;
 
-  if (!addressName || !address || !city || !state || !provience) {
+  if (!addressName || !address || !city || !state || !pincode) {
     return res.status(400).json(HTTPResp.error("badRequest"));
   }
  
@@ -22,7 +22,7 @@ router.post("/", function (req, res) {
       address, 
       city, 
       state,
-      provience
+      pincode
     });
      newAddress.save((err, address) => {
        if (err) {
@@ -43,8 +43,7 @@ router.post("/", function (req, res) {
         console.log(err);
         return res.status(500).json(HTTPResp.error("serverError"));
    }
- 
-});
+ });
 
 
 router.get("/", function (req, res) {
@@ -79,20 +78,15 @@ router.put("/:id", function (req, res) {
    if (!ObjectId.isValid(id)) {
     return res.status(400).json(HTTPResp.error('badRequest',`Invalid id: ${id}`));
    }
-   let { addressName, address, city, state, provience } = req.body;
-   if (!addressName || !address || !city || !state || !provience) {
+   let { addressName, address, city, state, pincode } = req.body;
+   if (!addressName || !address || !city || !state || !pincode) {
     return res.status(400).json(HTTPResp.error("badRequest"));
   }
-  Address.updateOne({ _id: objectId(id) }, { $set: {addressName, address, city, state, provience} }, function (
-    err,
-    result
-  ) {
+  Address.updateOne({ _id: objectId(id) }, { $set: {addressName, address, city, state, pincode} }, function (err,result) {
    if (err) {
       return res.status(400).json(HTTPResp.error("serverError"));
    }
-
    return res.status(200).json(HTTPResp.ok());
-   
   });
 });
 
@@ -102,11 +96,11 @@ router.delete("/:id", function (req, res) {
    return res.status(400).json(HTTPResp.error('badRequest',`Invalid id: ${id}`));
   }
   Address.deleteOne({ _id: objectId(id) }, function (err, result) {
-    if (result) {
-      return res.status(200).json(HTTPResp.ok());
-    }
     if (err) {
       return res.status(500).json(HTTPResp.error("serverError"));
+    }
+    if (result) {
+      return res.status(200).json(HTTPResp.ok());
     }
   });
 });
