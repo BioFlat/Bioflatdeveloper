@@ -1,58 +1,86 @@
 const router = require("express").Router();
-const env = require("../../../config/env");
-const config = require("../../../config")[env];
 const User = require("../../../models/User");
 const HTTPResp = require("../../../utils/HTTPResp");
-const Myorder = require("../../../models/Myorder");
-const Address = require("../../../models/Address");
+const Order = require("../../../models/Order");
+const OrderItem = require("../../../models/OrderItem");
+const Profile = require("../../../models/Profile");
 
 
 router.post("/", function (req, res) {
-  let { product, status } = req.body;
-  let { user_id } = req.currentUser;
 
-  if (!product || !status) {
-    return res.status(400).json(HTTPResp.error('badRequest'));
+  const { user_id } = req.currentUser;
+
+  const {
+    itemTotal, deliveryFee, orderItems,
+    addressId, totalAmount, paymentDetails
+  } = req.body;
+
+  if (!itemTotal || !deliveryFee || !addressId || !totalAmount || !paymentDetails || !orderItems) {
+    return res.status(400).json(HTTPResp.error("badRequest"));
   }
+  Profile.findOne({ userId: user_id }, (err, result) => {
+    if (err) {
+      return res.status(500).json(HTTPResp.error('serverError'));
+    }
+    if (!result) {
+      return res.status(404).json(HTTPResp.error('notFound', 'user profile'));
+    }
+    orderItems.forEach(item => {
+      let {
+        storeId,
+        productId,
+        quantity,
+        price
+      } = item;
+      if (!storeId || !productId || !quantity || !price) {
+        return res.status(400).json(HTTPResp.error("badRequest"));
+      }
 
-  Address.findOne({ userId: user_id }, (err, result) => {
+    });
+    let profileId = result._id;
+    OrderItem.insertMany(orderItems, (err, result) => {
+      if (err) {
+        return res.status(500).json(HTTPResp.error('serverError'));
+      }
 
-    try {
-      newOrder = new Myorder({
+      let cartItemIds = result.map(item => item._id);
+
+      let newOrder = new Order({
         userId: user_id,
-        product,
-        Delivery: result,
-        status
-      });
+        profile: profileId,
+        orderItems: cartItemIds,
+        address: addressId,
+        action: 'Order Placed',
+        actionOn: new Date(),
+        orderItemCount: cartItemIds.length,
+        itemTotal,
+        deliveryFee,
+        totalAmount,
+        paymentDetails
+      })
 
-      newOrder.save((err, store) => {
+      newOrder.save((err) => {
         if (err) {
           return res.status(500).json(HTTPResp.error("serverError"));
         }
-        if (store) {
-          return res.status(201).json(HTTPResp.created("order"));
-        }
+        return res.status(201).json(HTTPResp.created("order"));
       });
-    } catch (err) {
-      console.log(err);
-      return res.status(500).json(HTTPResp.error("serverError"));
-    }
+    })
   })
 
-});
-
+})
 
 router.get("/", function (req, res) {
-  let { user_id } = req.currentUser;
-  Myorder.find({ userId: user_id }, (err, result) => {
+  const { user_id } = req.currentUser;
+  Order.find({ userId: user_id }, (err, result) => {
     if (err) {
-      return res.status(500).send(err);
+      return res.status(500).json(HTTPResp.error('serverError'));
     }
     if (!result) {
       return res.status(404).json(HTTPResp.error('notFound'));
     }
-    res.status(200).json(HTTPResp.ok({ result }));
-  });
+    res.status(200).json(HTTPResp.ok(result));
+  }).populate('orderItems').populate('profile').populate('address');
 });
 
 module.exports = router;

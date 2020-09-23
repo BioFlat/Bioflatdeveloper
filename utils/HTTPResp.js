@@ -5,7 +5,7 @@ module.exports = {
     created : (param,data) => {
         return {
             success:{
-                message: HTTPMsg.created(param),
+                message: param + HTTPMsg['created'],
                 data:data
             }
         }
@@ -21,14 +21,7 @@ module.exports = {
     error: (param,msg) => {
         return {
             error: {
-                message:msg?msg:'' + HTTPMsg[param]
-            }
-        }
-    },
-    passwordMismatch: () => {
-        return {
-            error: {
-                message: HTTPMsg.passwordMismatch
+                message:(msg?msg:'') + HTTPMsg[param]
             }
         }
     }
