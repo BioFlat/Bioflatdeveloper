@@ -4,23 +4,18 @@ const config = require("../../../config")[env];
 const HTTPResp = require("../../../utils/HTTPResp");
 const User = require("../../../models/User");
 const Wishlist = require("../../../models/Wishlist");
+const Product = require("../../../models/Product");
 const ObjectId = require('mongoose').Types.ObjectId;
 const objectId = require('mongodb').ObjectId;
 
 router.post("/", function (req, res) {
   let { user_id } = req.currentUser;
-   let { price,productName,description, size } = req.body;
-
-  if (!price || !productName|| !description || !size ) {
-    return res.status(400).json(HTTPResp.error('badRequest'));
-   }
+  
  try{
+  Product.findOne({ vendorId: user_id }, (err, result) => {
        newWishlist = new Wishlist({
         userId:user_id,
-        productName,
-        description,
-        size,
-        price
+        product:result,
       });
      newWishlist.save((err, result) => {
       if (err) {
@@ -30,6 +25,7 @@ router.post("/", function (req, res) {
         return res.status(201).json(HTTPResp.created("wishlist"));
        }
     });
+  });
   } catch (err) {
     console.log(err);
     return res.status(500).json(HTTPResp.error("serverError"));
@@ -52,7 +48,7 @@ router.get("/", function (req, res) {
 });
 
  router.delete("/:id", function(req,res){
-     let {id} = req.params;
+     let {id} = req.query;
     if (!ObjectId.isValid(id)) {
     res.status(400).send(`Invalid id: ${id}`);
     }
