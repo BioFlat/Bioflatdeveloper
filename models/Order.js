@@ -4,6 +4,7 @@ const Schema = mongoose.Schema;
 
 const OrderSchema = new Schema({
   userId: { type: String, required: true },
+  store: { type: mongoose.Schema.Types.ObjectId, ref: "StoreInventory" },
   profile: { type: mongoose.Schema.Types.ObjectId, ref: "Profile" },
   orderItems: [{ type: mongoose.Schema.Types.ObjectId, ref: "OrderItem" }],
   address: { type: mongoose.Schema.Types.ObjectId, ref: "Address" },

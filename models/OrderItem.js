@@ -3,7 +3,6 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const OrderItemSchema = new Schema({
-  store: { type: mongoose.Schema.Types.ObjectId, ref: "StoreInventory" },
   product: { type: mongoose.Schema.Types.ObjectId, ref: "Product" },
   quantity: { type: Number, required: true },
   price: { type: String, required: true },
