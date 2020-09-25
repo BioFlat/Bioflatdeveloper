@@ -82,7 +82,7 @@ router.post("/category", function (req, res) {
         return res.status(400).json(HTTPResp.error("exists", "category"));
       }
       let newStoreCategory = new StoreCategory({
-        storeType: storeType
+        category: category
       });
       newStoreCategory.save((err, store) => {
         if (err) {
@@ -100,7 +100,7 @@ router.post("/category", function (req, res) {
 });
 
 router.get("/category", function (req, res) {
-  StoreCategory.find({}, (err, categories) => {
+  StoreCategory.find((err, categories) => {
     if (err) {
       return res.status(500).send(err);
     }
@@ -113,11 +113,15 @@ router.get("/category", function (req, res) {
 
 router.put("/category/:id", function (req, res) {
   let { id } = req.params;
+  let { category } = req.body;
+  if (!category) {
+    return res.status(400).json(HTTPResp.error("badRequest"));
+  }
   if (!ObjectId.isValid(id)) {
     return res.status(400).send(`Invalid id: ${id}`);
   }
   const reg = {
-    storeType: storeType
+    category: category
   };
   StoreCategory.updateOne({ _id: objectId(id) }, { $set: reg }, function (err, result) {
     if (err) {

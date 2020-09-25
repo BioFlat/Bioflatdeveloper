@@ -16,12 +16,12 @@ router.post("/", function (req, res) {
       if (err) {
         return res.status(500).json(HTTPResp.error("serverError"));
       }
-      if (!files.profile || !(files.profile && files.profile.path)) {
+      if (!files.profileImage || !(files.profileImage && files.profileImage.path)) {
         return res.status(400).json(HTTPResp.error("badRequest", 'profile image'));
       }
-      const oldPath = files.profile.path;
+      const oldPath = files.profileImage.path;
       const rawData = fs.readFileSync(oldPath)
-      const fileName = user_id + '.' + files.profile.name.split('.')[1];
+      const fileName = user_id + '.' + files.profileImage.name.split('.')[1];
       newPath += '/' + fileName;
       fs.writeFile(newPath, rawData, function (err) {
         if (err) {
